@@ -70,18 +70,19 @@ mm 			= minute 2 digits
 s 			= Second
 ss 			= second 2 digit
 A 			= AMPM
-T 			= Timezone
+TZ 			= Timezone using code
+TH			= Timezone using +hhmm
 =================================*/
 
 func GetFormatDate(o interface{}, dateFormat string) string {
 
 	var dateMap = map[string]string{"dd": "02", "d": "2", "MMMM": "January", "MMM": "Jan", "MM": "01", "M": "1",
 		"YYYY": "2006", "YY": "06", "hh": "03", "h": "3", "HH": "15", "mm": "04", "m": "4", "ss": "05", "s": "5",
-		"A": "PM", "TZ": "MST",
+		"A": "PM", "TZ": "MST", "TH": "-0700",
 	}
 
 	var dateOrder = map[int]string{1: "dd", 2: "d", 3: "MMMM", 4: "MMM", 5: "MM", 6: "M", 7: "YYYY", 8: "YY",
-		9: "hh", 10: "h", 11: "HH", 12: "mm", 13: "m", 14: "ss", 15: "s", 16: "A", 17: "TZ",
+		9: "hh", 10: "h", 11: "HH", 12: "mm", 13: "m", 14: "ss", 15: "s", 16: "A", 17: "TZ", 18: "TH",
 	}
 
 	var keys []int

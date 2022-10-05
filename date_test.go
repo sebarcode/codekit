@@ -15,15 +15,16 @@ func TestString2Date(t *testing.T) {
 		Format string
 		Result time.Time
 	}{
-		{"03-05-2022 21:30:00+07:00", "dd-MM-yyyy HH:mm:ssTZ:00", dt0},
-		{"03 May 2022 21:30:00+07:00", "dd MMM yyyy HH:mm:ssTZ:00", dt0},
-		{"03/May/2022 09:30 PM +07:00", "dd/MMM/yyyy HH:mm A TZ:00", dt0},
+		{"03-05-2022 21:30:00+0700", "dd-MM-yyyy HH:mm:ssTH", dt0},
+		{"03 May 2022 21:30:00+0700", "dd MMM yyyy HH:mm:ssTH", dt0},
+		{"03/May/2022 09:30 PM +0700", "dd/MMM/yyyy hh:mm A TH", dt0},
+		{"05/03/2022 09:30:00 -0500", "MM/dd/yyyy HH:mm:ss TH", dt0},
 	}
 
 	for _, td := range testData {
 		res := codekit.String2Date(td.Txt, td.Format)
-		if !res.Equal(td.Result) {
-			t.Errorf("expected %s got %s", dt0.String(), res.String())
+		if !res.UTC().Equal(td.Result.UTC()) {
+			t.Errorf("expected %s got %s with format %s", dt0.UTC().String(), res.String(), codekit.GetFormatDate(td.Txt, td.Format))
 		}
 	}
 }
