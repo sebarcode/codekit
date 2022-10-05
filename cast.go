@@ -73,15 +73,15 @@ A 			= AMPM
 T 			= Timezone
 =================================*/
 
-func getFormatDate(o interface{}, dateFormat string) string {
+func GetFormatDate(o interface{}, dateFormat string) string {
 
 	var dateMap = map[string]string{"dd": "02", "d": "2", "MMMM": "January", "MMM": "Jan", "MM": "01", "M": "1",
 		"YYYY": "2006", "YY": "06", "hh": "03", "h": "3", "HH": "15", "mm": "04", "m": "4", "ss": "05", "s": "5",
-		"A": "PM", "T": "MST",
+		"A": "PM", "TZ": "MST",
 	}
 
 	var dateOrder = map[int]string{1: "dd", 2: "d", 3: "MMMM", 4: "MMM", 5: "MM", 6: "M", 7: "YYYY", 8: "YY",
-		9: "hh", 10: "h", 11: "HH", 12: "mm", 13: "m", 14: "ss", 15: "s", 16: "A", 17: "T",
+		9: "hh", 10: "h", 11: "HH", 12: "mm", 13: "m", 14: "ss", 15: "s", 16: "A", 17: "TZ",
 	}
 
 	var keys []int
@@ -129,7 +129,7 @@ func Date2String(t time.Time, dateFormat string) string {
 	if dateFormat == "" {
 		dateFormat = DefaultDateFormat()
 	}
-	dateFormat = getFormatDate(t, dateFormat)
+	dateFormat = GetFormatDate(t, dateFormat)
 	return t.Format(dateFormat)
 }
 
@@ -137,8 +137,11 @@ func String2Date(dateString string, dateFormat string) time.Time {
 	if dateFormat == "" {
 		dateFormat = DefaultDateFormat()
 	}
-	dateFormat = getFormatDate(dateString, dateFormat)
-	t, _ := time.Parse(dateFormat, dateString)
+	dateFormat = GetFormatDate(dateString, dateFormat)
+	t, e := time.Parse(dateFormat, dateString)
+	if e != nil {
+		fmt.Println("codekit.Date2String error: " + e.Error())
+	}
 	return t
 }
 
