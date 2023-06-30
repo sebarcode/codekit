@@ -2,6 +2,8 @@ package codekit
 
 import (
 	"crypto/md5"
+	"crypto/sha512"
+	"encoding/base64"
 	"encoding/hex"
 	"math"
 	"math/rand"
@@ -69,4 +71,20 @@ func GenerateRandomString(baseChars string, n int) string {
 
 func RandomString(length int) string {
 	return GenerateRandomString("", length)
+}
+
+func Sha(txt, salt string) []byte {
+	data := txt
+	if salt != "" {
+		data = data + ":" + salt
+	}
+	h := sha512.New()
+	h.Write([]byte(data))
+	bs := h.Sum(nil)
+	return bs
+}
+
+func ShaString(txt, salt string) string {
+	bs := Sha(txt, salt)
+	return base64.StdEncoding.EncodeToString(bs)
 }
