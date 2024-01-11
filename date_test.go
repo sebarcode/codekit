@@ -28,3 +28,17 @@ func TestString2Date(t *testing.T) {
 		}
 	}
 }
+
+func TestDateTrim(t *testing.T) {
+	dtTest := time.Now()
+	dtOnly := codekit.DateOnly(dtTest)
+	tmOnly := codekit.TimeOnly(dtTest, true, false)
+
+	if dtOnly.Format("15-04-05") != "00-00-00" {
+		t.Fatalf("should return date only, got %s for %v", dtOnly.Format("15-04-05"), dtOnly)
+	}
+
+	if tmOnly.Format("2006-01-02") != "1900-01-01" {
+		t.Fatalf("should return time only, got %s for %v", tmOnly.Format("2006-01-02"), tmOnly)
+	}
+}
