@@ -61,12 +61,12 @@ func GenerateRandomString(baseChars string, n int) string {
 	}
 	baseCharsLen := len(baseChars)
 
-	rnd := ""
+	rnd := make([]rune, n)
 	for i := 0; i < n; i++ {
 		x := RandInt(baseCharsLen)
-		rnd += string(baseChars[x])
+		rnd[i] = rune(baseChars[x])
 	}
-	return rnd
+	return string(rnd)
 }
 
 func RandomString(length int) string {
