@@ -13,7 +13,7 @@ import (
 type M map[string]interface{}
 type Ms []M
 
-var ErrorPathNotFound = errors.New("Path requested is not available")
+var ErrorPathNotFound = errors.New("path requested is not available")
 
 func (m M) Set(k string, v interface{}) M {
 	m[k] = v
