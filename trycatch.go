@@ -67,6 +67,9 @@ func ThrowError(err interface{}) {
 	case string:
 		panic(errors.New(err.(string)))
 
+	case nil:
+		return
+
 	default:
 		panic(fmt.Errorf("%v", x))
 	}
