@@ -11,7 +11,7 @@ import (
 func TestTryCatchBase(t *testing.T) {
 	c := 0
 	err := codekit.Try(func() {
-		codekit.ThrowError("test error")
+		codekit.CheckError("test error")
 	}).
 		Catch(func(err error) {
 			if err.Error() != "test error" {
@@ -70,7 +70,7 @@ func TestTryCatchDynamic(t *testing.T) {
 		c = a * b
 
 		if math.Mod(float64(a), 2) == 1 {
-			codekit.ThrowError("odd value")
+			codekit.CheckError("odd value")
 		}
 		raw = c
 		c = 50

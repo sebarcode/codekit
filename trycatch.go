@@ -59,7 +59,7 @@ func (tcf *tcf) Do() error {
 	return err
 }
 
-func ThrowError(err interface{}) {
+func CheckError(err interface{}) {
 	switch x := err.(type) {
 	case error:
 		panic(x)
