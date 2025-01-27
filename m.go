@@ -346,3 +346,21 @@ func (m M) Merge(from M, overwrite bool) {
 		m[k] = v
 	}
 }
+
+func MGet[T any](m M, name string, defValue T) T {
+	if v, ok := m[name]; ok {
+		if rv, ok := v.(T); ok {
+			return rv
+		}
+	}
+	return defValue
+}
+
+func MGetWithErr[T any](m M, name string, defValue T) (T, error) {
+	if v, ok := m[name]; ok {
+		if rv, ok := v.(T); ok {
+			return rv, fmt.Errorf("cast error, from %s to %s", reflect.TypeOf(v).String(), reflect.TypeOf(defValue).String())
+		}
+	}
+	return defValue, fmt.Errorf("key %s not found", name)
+}
