@@ -147,49 +147,44 @@ func String2Date(dateString string, dateFormat string) time.Time {
 }
 
 func ToInt(o interface{}, rounding string) int {
-	var ret int
-	k := Kind(o)
-	v := Value(o)
+	switch o.(type) {
+	case int:
+		return o.(int)
 
-	if k == reflect.String {
-		i := strings.Index(v.String(), ".")
-		if i >= 0 {
-			f, _ := strconv.ParseFloat(v.String(), 64)
-			ret = ToInt(f, rounding)
-		} else {
-			if i, e := strconv.Atoi(v.String()); e == nil {
-				return i
-			} else {
-				return 0
-			}
-		}
-	} else if k == reflect.Int || k == reflect.Int8 || k == reflect.Int16 || k == reflect.Int32 || k == reflect.Int64 {
-		return int(v.Int())
-	} else if k == reflect.Uint || k == reflect.Uint8 || k == reflect.Uint16 || k == reflect.Uint32 || k == reflect.Uint64 {
-		return int(v.Uint())
-	} else if k == reflect.Float32 || k == reflect.Float64 {
-		f := ToFloat64(v.Float(), 0, rounding)
-		return int(int64(f))
+	case int8, int16, int32, int64:
+		return int(Value(o).Int())
+
+	case uint, uint8, uint16, uint32, uint64:
+		return int(Value(o).Uint())
+
+	case float32, float64:
+		return int(ToFloat64(o, 0, rounding))
+
+	default:
+		return 0
 	}
-
-	return ret
 }
 
 func ToFloat32(o interface{}, decimalPoint int, rounding string) float32 {
 	var f float64
 
-	v := Value(o)
-	typeName := v.Type().Name()
-	t := strings.ToLower(typeName)
+	switch o.(type) {
+	case int, int8, int16, int32, int64:
+		f = ToFloat64(Value(o).Int(), decimalPoint, rounding)
 
-	if t != "interface{}" && strings.HasPrefix(t, "int") {
-		f = ToFloat64(v.Int(), decimalPoint, rounding)
-	} else if strings.HasPrefix(t, "uint") {
-		f = ToFloat64(v.Uint(), decimalPoint, rounding)
-	} else if strings.HasPrefix(t, "float") {
-		f = ToFloat64(v.Float(), decimalPoint, rounding)
-	} else {
-		f = ToFloat64(v.String(), decimalPoint, rounding)
+	case uint, uint8, uint16, uint32, uint64:
+		f = ToFloat64(Value(o).Uint(), decimalPoint, rounding)
+
+	case float32, float64:
+		var ok bool
+		f, ok = o.(float64)
+		if !ok {
+			f = float64(o.(float32))
+		}
+		f = ToFloat64(f, decimalPoint, rounding)
+
+	default:
+		f = ToFloat64(Value(o).String(), decimalPoint, rounding)
 	}
 
 	if math.IsNaN(f) || math.IsInf(f, 0) {
@@ -203,23 +198,29 @@ func ToFloat64(o interface{}, decimalPoint int, rounding string) float64 {
 	var f float64
 	var e error
 
-	v := Value(o)
-	t := strings.ToLower(v.Type().Name())
+	f, ok := o.(float64)
+	if !ok {
+		v := Value(o)
+		t := strings.ToLower(v.Type().Name())
 
-	if t != "interface{}" && strings.HasPrefix(t, "int") {
-		f = float64(v.Int())
-	} else if strings.HasPrefix(t, "uint") {
-		f = float64(v.Uint())
-	} else if strings.HasPrefix(t, "float") {
-		f = float64(v.Float())
-	} else {
-		f, e = strconv.ParseFloat(v.String(), 64)
-		if e != nil {
-			return 0
+		if t != "interface{}" && strings.HasPrefix(t, "int") {
+			f = float64(v.Int())
+		} else if strings.HasPrefix(t, "uint") {
+			f = float64(v.Uint())
+		} else if strings.HasPrefix(t, "float") {
+			f = float64(v.Float())
+		} else {
+			f, e = strconv.ParseFloat(v.String(), 64)
+			if e != nil {
+				return 0
+			}
 		}
 	}
 
-	//fmt.Printf("\ndec: %v\n", decimalPoint)
+	if decimalPoint < 0 {
+		return f
+	}
+
 	switch rounding {
 	case RoundingAuto:
 		return RoundingAuto64(f, decimalPoint)
@@ -275,6 +276,12 @@ func ToDate(o interface{}, formatDate string) time.Time {
 		return time.Unix(intDate, 0)
 	} else if strings.Contains(t, "string") {
 		return String2Date(o.(string), formatDate)
+	} else if t == "*time.Time" {
+		dt, ok := o.(*time.Time)
+		if !ok {
+			return time.Now()
+		}
+		return *dt
 	} else if strings.HasSuffix(t, "time.time") {
 		return o.(time.Time)
 	}

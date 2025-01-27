@@ -84,8 +84,8 @@ func (m M) GetRef(k string, d, out interface{}) {
 
 const (
 	CaseAsIs  string = ""
-	CaseUpper        = "upper"
-	CaseLower        = "lower"
+	CaseUpper string = "upper"
+	CaseLower string = "lower"
 )
 
 var (
@@ -159,7 +159,9 @@ func tomTagName(data interface{}, namePattern string, tagName string) (M, error)
 			kind := f.Type.Kind()
 			if kind == reflect.Ptr {
 				kind = f.Type.Elem().Kind()
-			} else if (kind == reflect.Struct && f.Type != reflect.TypeOf(time.Time{})) || kind == reflect.Map {
+			}
+
+			if (kind == reflect.Struct && f.Type != reflect.TypeOf(time.Time{})) || kind == reflect.Map {
 				// Then we need to call this function again to fetch the sub value
 				subRes, err := tomTagName(rv.Field(i).Interface(), namePattern, tagName)
 				if err != nil {
@@ -234,13 +236,13 @@ func tomTagName(data interface{}, namePattern string, tagName string) (M, error)
 	}
 
 	// If the data element is not map or struct then return error
-	return nil, fmt.Errorf("Expecting struct or map object but got %s", rv.Kind())
+	return nil, fmt.Errorf("expecting struct or map object but got %s", rv.Kind())
 }
 
-func (m *M) Cast(k string, d interface{}) error {
+func (m M) Cast(k string, d interface{}) error {
 	var e error
-	if m.Has(k) == false {
-		return fmt.Errorf("No data for key %s", k)
+	if _, ok := m[k]; !ok {
+		return fmt.Errorf("no data for key %s", k)
 	}
 	b, e := json.Marshal(m.Get(k, nil))
 	if e != nil {
@@ -348,12 +350,8 @@ func (m M) Merge(from M, overwrite bool) {
 }
 
 func MGet[T any](m M, name string, defValue T) T {
-	if v, ok := m[name]; ok {
-		if rv, ok := v.(T); ok {
-			return rv
-		}
-	}
-	return defValue
+	res, _ := MGetWithErr(m, name, defValue)
+	return res
 }
 
 func MGetWithErr[T any](m M, name string, defValue T) (T, error) {
