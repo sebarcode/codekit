@@ -52,7 +52,7 @@ func TestCast(t *testing.T) {
 }
 
 func TestCastModel(t *testing.T) {
-	dataCount := 100000
+	dataCount := 1000000
 	datas := make([]*TestModel, dataCount)
 	for i := 0; i < dataCount; i++ {
 		data := &TestModel{
@@ -68,11 +68,16 @@ func TestCastModel(t *testing.T) {
 	datas[10].ActivatedDate = &t0
 	datas[10].NamePtr = &namePtr
 
-	mData, err := codekit.ToM(datas[0])
-	if err != nil {
-		t.Fatalf("tom failed: %v", err)
+	mDatas := make([]codekit.M, dataCount)
+	for i := 0; i < dataCount; i++ {
+		mData, err := codekit.ToM(datas[i])
+		if err != nil {
+			t.Fatalf("tom failed: %v", err)
+		}
+		mDatas[i] = mData
 	}
 
+	mData := mDatas[0]
 	if mData.Get("Created", time.Now()).(time.Time).UnixMicro() != datas[0].Created.UnixMicro() {
 		t.Fatalf("get created failed: %v", mData.Get("Created", time.Now()).(time.Time))
 	}
@@ -80,10 +85,7 @@ func TestCastModel(t *testing.T) {
 		t.Fatalf("get name ptr nil failed: %v", nilName)
 	}
 
-	mData, err = codekit.ToM(datas[10])
-	if err != nil {
-		t.Fatalf("tom 10 failed: %v", err)
-	}
+	mData = mDatas[10]
 	t10 := datas[10].ActivatedDate.UnixMicro()
 	if t10 != mData.Get("ActivatedDate", &t0).(*time.Time).UnixMicro() {
 		t.Fatalf("get activated date failed: %v", mData.Get("ActivatedDate", &t0).(*time.Time))
