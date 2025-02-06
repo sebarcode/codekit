@@ -157,13 +157,22 @@ func tomTagName(data interface{}, namePattern string, tagName string) (M, error)
 
 			// If the type is struct but not time.Time or is a map
 			kind := f.Type.Kind()
+			fieldValue := rv.Field(i)
+			fType := f.Type
 			if kind == reflect.Ptr {
+				if fieldValue.IsNil() {
+					continue
+				}
+
 				kind = f.Type.Elem().Kind()
+				fieldValue = fieldValue.Elem()
+				fType = f.Type.Elem()
 			}
 
-			if (kind == reflect.Struct && f.Type != reflect.TypeOf(time.Time{})) || kind == reflect.Map {
+			if (kind == reflect.Struct && fType != reflect.TypeOf(time.Time{})) || kind == reflect.Map {
 				// Then we need to call this function again to fetch the sub value
-				subRes, err := tomTagName(rv.Field(i).Interface(), namePattern, tagName)
+				fvInt := fieldValue.Interface()
+				subRes, err := tomTagName(fvInt, namePattern, tagName)
 				if err != nil {
 					return nil, err
 				}
@@ -171,7 +180,7 @@ func tomTagName(data interface{}, namePattern string, tagName string) (M, error)
 				// Skip the rest
 				continue
 			} else if kind == reflect.Slice {
-				slice := rv.Field(i)
+				slice := fieldValue
 				count := slice.Len()
 				elemType := slice.Type().Elem().Kind()
 				switch elemType {
