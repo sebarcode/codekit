@@ -52,7 +52,7 @@ func TestCast(t *testing.T) {
 }
 
 func TestCastModel(t *testing.T) {
-	dataCount := 100
+	dataCount := 100000
 	datas := make([]*TestModel, dataCount)
 	for i := 0; i < dataCount; i++ {
 		data := &TestModel{
