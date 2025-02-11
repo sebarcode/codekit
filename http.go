@@ -18,12 +18,17 @@ type HttpCallOpts struct {
 }
 
 func HttpCall(url string, method string, payload []byte, headers map[string]string, callOpts *HttpCallOpts) (*http.Response, error) {
-	var byteReader *bytes.Buffer
-
+	var (
+		req        *http.Request
+		byteReader *bytes.Buffer
+		err        error
+	)
 	if len(payload) > 0 {
 		byteReader = bytes.NewBuffer(payload)
+		req, err = http.NewRequest(method, url, byteReader)
+	} else {
+		req, err = http.NewRequest(method, url, nil)
 	}
-	req, err := http.NewRequest(method, url, byteReader)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
 	}
@@ -62,8 +67,10 @@ func httpDo(req *http.Request, opts HttpCallOpts) (*http.Response, error) {
 		}
 	}
 
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
-	client.Transport = tr
+	if req.URL.Scheme == "https" {
+		tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+		client.Transport = tr
+	}
 
 	var resp *http.Response
 	var errCall error

@@ -262,11 +262,17 @@ func (m M) Cast(k string, d interface{}) error {
 }
 
 func (m M) GetBytes(k string) []byte {
-	bs, err := base64.StdEncoding.DecodeString(m.GetString(k))
-	if err != nil {
-		return []byte{}
+	switch k {
+	case "base64":
+		bs, err := base64.StdEncoding.DecodeString(m.GetString(k))
+		if err != nil {
+			return []byte{}
+		}
+		return bs
+
+	default:
+		return Jsonify(m)
 	}
-	return bs
 }
 
 func (m M) GetFloat64(k string) float64 {
