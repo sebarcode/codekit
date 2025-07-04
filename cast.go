@@ -139,10 +139,12 @@ func String2Date(dateString string, dateFormat string) time.Time {
 		dateFormat = DefaultDateFormat()
 	}
 	dateFormat = GetFormatDate(dateString, dateFormat)
-	t, e := time.Parse(dateFormat, dateString)
-	if e != nil {
-		fmt.Println("codekit.Date2String error: " + e.Error())
-	}
+	t, _ := time.Parse(dateFormat, dateString)
+	/*
+		if e != nil {
+			fmt.Println("codekit.Date2String error: " + e.Error())
+		}
+	*/
 	return t
 }
 
