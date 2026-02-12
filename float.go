@@ -22,6 +22,12 @@ func FormatFloat(num float64, opts *FloatOpts) string {
 			Rounding:     "",
 		}
 	}
+	if opts.ThousandSep == "" {
+		opts.ThousandSep = ","
+	}
+	if opts.DecimalSep == "" {
+		opts.DecimalSep = "."
+	}
 
 	// apply rounding mode
 	factor := math.Pow10(opts.DecimalPoint)
